@@ -38,9 +38,20 @@ set foldlevel=99            " don't fold by default
 map <leader>p "+p
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<CR>
 
+
+function! BuildYCM(info)
+  " info is a dictionary with 3 fields
+  " - name:   name of the plugin
+  " - status: 'installed', 'updated', or 'unchanged'
+  " - force:  set on PlugInstall! or PlugUpdate!
+  if a:info.status == 'installed' || a:info.force
+    !./install.py
+  endif
+endfunction
+
 call plug#begin()
 Plug 'mjbrownie/swapit'
-Plug 'mjbrownie/YouCompleteMe'
+Plug 'mjbrownie/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'mattn/emmet-vim'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
