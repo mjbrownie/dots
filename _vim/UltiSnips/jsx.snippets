@@ -1,0 +1,57 @@
+snippet acon "redux const ACTION = 'ACTION'"
+export const ${1:ACTION} = '$1'
+endsnippet
+snippet aa "redux ACTION:'ACTION'"
+${1:ACTION}:"$1"
+endsnippet
+snippet act "redux action const + creator"
+export const ${1:ACTION} = '$1'
+
+export function ${2:doAction}(${3:varname}) {
+	return { type: $1, $3  }
+}
+endsnippet
+
+snippet rap "redux app switch"
+function $1(state = initialState, action) {
+	switch (action.type) {
+		case $1:
+			return Object.assign({}, state, {
+				${2:paramName}: action.${3:propertyName}
+			})
+		default:
+			return state
+	}
+}
+endsnippet
+
+snippet rsase "redux reducer case ACTION"
+case ${1:ACTION_NAME}:
+	return Object.assign({}, state, {
+		$2	
+	})
+endsnippet
+
+snippet rpl "reducer case parameter list"
+	${1:paramName}: [
+		...state.$1,
+		{
+		${2:paramName2}: ${3:value},
+		}
+	]
+endsnippet
+
+snippet rpv "reducer case parameter sniple valu"
+	${1:paramName}: [
+		...state.$1,
+		{
+		${2:paramName2}: ${3:value},
+		}
+	]
+endsnippet
+
+snippet rinit "redux initialState"
+const initialState = {
+	${1:paramName}: ${2:value}
+}
+endsnippet
