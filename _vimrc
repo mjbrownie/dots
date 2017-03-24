@@ -82,6 +82,8 @@ Plug 'narfdotpl/selfdot.vim'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 Plug 'wlemuel/vim-ultisnips-redux'
+Plug 'scrooloose/NerdTree'
+Plug 'mjbrownie/GetFilePlus'
 call plug#end()
 
 
@@ -191,3 +193,11 @@ let g:syntastic_javascript_checkers = ['eslint']
 let g:jsx_ext_required = 0
 
 set mouse=a
+
+function! StartUp()
+    if 0 == argc()
+        NERDTree
+    end
+endfunction
+
+autocmd VimEnter * call StartUp()
