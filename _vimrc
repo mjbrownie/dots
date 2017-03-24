@@ -194,7 +194,6 @@ let g:jsx_ext_required = 0
 
 set mouse=a
 
-<<<<<<< Updated upstream
 function! StartUp()
     if 0 == argc()
         NERDTree
@@ -202,7 +201,6 @@ function! StartUp()
 endfunction
 
 autocmd VimEnter * call StartUp()
-=======
 "set backup
 "set backupdir=./.backupset directory=./.backup
 "
@@ -214,4 +212,3 @@ function! SimpleLog(notes)
 endfunction
 
 command! LL -nargs=+ -complete=file call SimpleLog(<q-args>)
->>>>>>> Stashed changes
