@@ -66,7 +66,6 @@ Plug 'mjbrownie/django-template-textobjects'
 Plug 'mjbrownie/html-textobjects'
 Plug 'mjbrownie/vim-relafile-django'
 Plug 'mjbrownie/snipmate_for_django'
-Plug 'mjbrownie/snipmate_for_django'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'vim-syntastic/syntastic'
@@ -75,8 +74,10 @@ Plug 'justinj/vim-react-snippets'
 Plug 'kana/vim-textobj-user'
 Plug 'mjbrownie/vim-relafile'
 Plug 'mjbrownie/vim-relafile-django'
+Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/tpope-vim-abolish'
 Plug 'jiangmiao/auto-pairs'
 Plug 'narfdotpl/selfdot.vim'
 Plug 'pangloss/vim-javascript'
@@ -84,8 +85,26 @@ Plug 'mxw/vim-jsx'
 Plug 'wlemuel/vim-ultisnips-redux'
 Plug 'scrooloose/NerdTree'
 Plug 'mjbrownie/GetFilePlus'
+Plug 'junegunn/vim-easy-align'
+Plug 'flazz/vim-colorschemes'
+Plug 'adelarsq/vim-matchit'
+Plug 'gcmt/taboo.vim'
+Plug 'xolox/vim-misc'
+Plug 'xolox/vim-session'
+Plug 'Glench/Vim-Jinja2-Syntax'
+Plug 'airblade/vim-gitgutter'
+Plug 'vim-scripts/QuickBuf'
+"Plug 'powerline/powerline'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'wellle/targets.vim'
+Plug 'michaeljsmith/vim-indent-object'
+Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle'  }
+Plug 'mgedmin/pythonhelper.vim'
 call plug#end()
 
+let g:NERDTreeUpdateOnCursorHold = 0
+let g:airline#extensions#tabline#enabled = 1
 
 " Add the virtualenv's site-packages to vim path
 if has("python")
@@ -130,8 +149,9 @@ command Ctags :!ctags -R -f ./tags `python -c "from distutils.sysconfig import g
 nnoremap \ap :%!autopep8 --aggressive --aggressive %<cr>
 
 inoremap {% {%  %}<left><left><left>
-"
-let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', '`':'`', '{{':'}}', '{%':'%}'}
+"j
+"let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', '`':'`', '{{':'}}', '{%':'%}'}
+let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', '`':'`'}
 
 
 "let g:UltiSnipsExpandTrigger="<c-i>""
@@ -192,7 +212,22 @@ let g:syntastic_javascript_checkers = ['eslint']
 
 let g:jsx_ext_required = 0
 
-set mouse=a
+"set mouse=a
+"Turn off mouse as I seem to use it for terminal copy more often
+let s:mouse_enabled = 0
+set mouse=
+fun! ToggleMouse ()
+    if s:mouse_enabled
+        let s:mouse_enabled = 0
+        set mouse=
+        echo "Mouse Off"
+    else
+        let s:mouse_enabled = 1
+        set mouse=a
+        echo "Mouse ON"
+    endif
+endfun
+nnoremap \m :call ToggleMouse()<cr>
 
 function! StartUp()
     if 0 == argc()
@@ -212,3 +247,67 @@ function! SimpleLog(notes)
 endfunction
 
 command! LL -nargs=+ -complete=file call SimpleLog(<q-args>)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+inoremap jj <esc>A<cr>
+inoremap jk <esc>
+inoremap kj <esc>
+inoremap kk <esc><up>
+inoremap kl <esc>/[,)\]}=]<cr>a
+let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
+
+"Session manager
+let g:session_directory = '~/.vim/session'
+let g:session_autoload = 0
+let g:session_autosave = 0
+
+set sessionoptions+=tabpages,globals
+
+let g:syntastic_python_checkers=['python', 'pep8', 'flake8', 'pyflakes']
+let g:syntastic_python_flake8_post_args='--ignore=W391'
+
+"toggle mouse
+
+let g:qb_hotkey = '\q'
+
+py << EOF
+os.environ['DJANGO_SETTINGS_MODULE'] = 'injurymaster.settings'
+EOF
+
+inoremap {% {%  %}<left><left><left>
+inoremap {{ {{  }}<left><left><left>
+
+"GIT gutter
+"
+nmap ]h <Plug>GitGutterNextHunk
+nmap [h <Plug>GitGutterPrevHunk
+
+nmap <Leader>ha <Plug>GitGutterStageHunk
+nmap <Leader>hr <Plug>GitGutterUndoHunk
+nmap <Leader>hv <Plug>GitGutterPreviewHunk
+
+omap ih <Plug>GitGutterTextObjectInnerPending
+omap ah <Plug>GitGutterTextObjectOuterPending
+xmap ih <Plug>GitGutterTextObjectInnerVisual
+xmap ah <Plug>GitGutterTextObjectOuterVisual
+
+set autoread
+
+set pastetoggle=<F12>
+
+function! s:DiffWithSaved()
+  let filetype=&ft
+  diffthis
+  vnew | r # | normal! 1Gdd
+  diffthis
+  exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
+endfunction
+com! DiffSaved call s:DiffWithSaved()
+
+
+let g:airline_section_x =''
+let g:airline_section_y ='%{TagInStatusLine()}'
+
+k
