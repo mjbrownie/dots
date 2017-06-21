@@ -101,6 +101,8 @@ Plug 'wellle/targets.vim'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle'  }
 Plug 'mgedmin/pythonhelper.vim'
+Plug 'skywind3000/asyncrun.vim'
+Plug 'tpope/vim-unimpaired'
 call plug#end()
 
 let g:NERDTreeUpdateOnCursorHold = 0
@@ -265,8 +267,14 @@ let g:session_autosave = 0
 
 set sessionoptions+=tabpages,globals
 
-let g:syntastic_python_checkers=['python', 'pep8', 'flake8', 'pyflakes']
-let g:syntastic_python_flake8_post_args='--ignore=W391'
+let g:syntastic_python_checkers=['python', 'flake8']
+let g:syntastic_python_flake8_post_args='--ignore=W391 --max-line-length=100'
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_loc_list_height=3
 
 "toggle mouse
 
@@ -309,5 +317,22 @@ com! DiffSaved call s:DiffWithSaved()
 
 let g:airline_section_x =''
 let g:airline_section_y ='%{TagInStatusLine()}'
+let g:airline_section_error = airline#section#create_right(['%{g:asyncrun_status}'])
 
-k
+
+autocmd! BufWritePost *.py AsyncRun isort %
+autocmd User AsyncRunStop  edit
+
+command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
+
+
+if exists(':Make') == 2
+    noautocmd Make
+else
+    silent noautocmd make!
+    redraw!
+    return 'call fugitive#cwindow()'
+endif
+
+noremap \c :call asyncrun#quickfix_toggle(8)<cr>
+command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
