@@ -103,6 +103,8 @@ Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle'  }
 Plug 'mgedmin/pythonhelper.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-unimpaired'
+Plug 'roxma/vim-paste-easy'
+Plug 'bps/vim-textobj-python'
 call plug#end()
 
 let g:NERDTreeUpdateOnCursorHold = 0
@@ -148,7 +150,7 @@ map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_p
 command Ctags :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
 " Load up virtualenv's vimrc if it exists
 "
-nnoremap \ap :%!autopep8 --aggressive --aggressive %<cr>
+"nnoremap \ap :%!autopep8 --aggressive --aggressive %<cr>
 
 inoremap {% {%  %}<left><left><left>
 "j
@@ -237,7 +239,7 @@ function! StartUp()
     end
 endfunction
 
-autocmd VimEnter * call StartUp()
+"autocmd VimEnter * call StartUp()
 "set backup
 "set backupdir=./.backupset directory=./.backup
 "
@@ -257,7 +259,8 @@ inoremap jj <esc>A<cr>
 inoremap jk <esc>
 inoremap kj <esc>
 inoremap kk <esc><up>
-inoremap kl <esc>/[,)\]}=]<cr>a
+inoremap kl <esc>/["',)\]}=]<cr>a
+inoremap jl <esc>/[,)\]}=]<cr>a
 let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
 
 "Session manager
@@ -268,10 +271,10 @@ let g:session_autosave = 0
 set sessionoptions+=tabpages,globals
 
 let g:syntastic_python_checkers=['python', 'flake8']
-let g:syntastic_python_flake8_post_args='--ignore=W391 --max-line-length=100'
+let g:syntastic_python_flake8_post_args='--ignore=W391,E123,E128,E121 --max-line-length=100'
 
 let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
+let g:syntastic_auto_loc_list = 0
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 let g:syntastic_loc_list_height=3
@@ -280,9 +283,9 @@ let g:syntastic_loc_list_height=3
 
 let g:qb_hotkey = '\q'
 
-py << EOF
-os.environ['DJANGO_SETTINGS_MODULE'] = 'injurymaster.settings'
-EOF
+if filereadable('~/.vimrc.local.vim')
+    source ~/.vimrc.local.vim
+endif
 
 inoremap {% {%  %}<left><left><left>
 inoremap {{ {{  }}<left><left><left>
@@ -320,19 +323,30 @@ let g:airline_section_y ='%{TagInStatusLine()}'
 let g:airline_section_error = airline#section#create_right(['%{g:asyncrun_status}'])
 
 
-autocmd! BufWritePost *.py AsyncRun isort %
-autocmd User AsyncRunStop  edit
 
-command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
-
-
-if exists(':Make') == 2
-    noautocmd Make
-else
-    silent noautocmd make!
-    redraw!
-    return 'call fugitive#cwindow()'
-endif
+" if exists(':Make') == 2
+"     noautocmd Make
+" else
+"     silent noautocmd make!
+"     redraw!
+"     return 'call fugitive#cwindow()'
+" endif
 
 noremap \c :call asyncrun#quickfix_toggle(8)<cr>
-command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
+
+if !filereadable(expand("%:p:h")."/Makefile")
+    autocmd FileType c setlocal makeprg=gcc\ -Wall\ -Wextra\ -o\ %<\ %
+endif
+
+fun! RunAfter()
+    exe 'autocmd! BufWritePost *.py AsyncRun isort %'
+    exe 'autocmd User AsyncRunStop  edit'
+    exe 'command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>'
+    return
+endfun
+autocmd VimEnter * :call RunAfter()<cr>
+command! -bang -nargs=* WIP AsyncRun -program=~/bin/WIP ~/bin/WIP <args>
+
+autocmd FileType xml setlocal makeprg=xml\ val\ -e\ -s\ ~/src/tickets/IM-1/NIDSv8.xsd
+
+vnoremap \ap !autopep8 --aggressive --ignore=E123 --ignore=E128 --max-line-length=100 -<cr>
