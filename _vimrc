@@ -1,17 +1,17 @@
+"
 "Core Stuff
 set et
 set sts=4
 set sw=4
-set list
+set nolist
 set nocompatible
 
 set wildmode=longest,list,full
 set wildmenu
 colorscheme desert
-
-set showbreak=↪\ 
-set listchars=tab:▶\ 
-set listchars+=trail:◥
+" set showbreak=↪\ 
+" set listchars=tab:▶
+" set listchars+=trail:◥
 set backspace=2             " Allow backspacing over autoindent, EOL, and BOL
 "
 """ Moving Around/Editing
@@ -35,7 +35,13 @@ set matchpairs+=<:>         " show matching <> (html mainly) as well
 set foldmethod=indent       " allow us to fold on indents
 set foldlevel=99            " don't fold by default
 
+
+if v:version < 800
+    finish
+endif
+
 map <leader>p "+p
+
 nnoremap <leader>w :%s/\s\+$//<cr>:let @/=''<CR>
 
 
@@ -50,8 +56,12 @@ function! BuildYCM(info)
 endfunction
 
 call plug#begin()
+Plug 'rust-lang/rust.vim'
+Plug 'will133/vim-dirdiff'
+Plug 'vim-scripts/dbext.vim'
 Plug 'mjbrownie/swapit'
 Plug 'mjbrownie/YouCompleteMe', { 'do': function('BuildYCM') }
+Plug 'tenfyzhong/CompleteParameter.vim'
 Plug 'mattn/emmet-vim'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -64,16 +74,15 @@ Plug 'mjbrownie/swapit'
 Plug 'mjbrownie/delete-surround-html'
 Plug 'mjbrownie/django-template-textobjects'
 Plug 'mjbrownie/html-textobjects'
-Plug 'mjbrownie/vim-relafile-django'
 Plug 'mjbrownie/snipmate_for_django'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'vim-syntastic/syntastic'
+" Plug 'vim-syntastic/syntastic'
 Plug 'sjl/gundo.vim'
 Plug 'justinj/vim-react-snippets'
 Plug 'kana/vim-textobj-user'
-Plug 'mjbrownie/vim-relafile'
-Plug 'mjbrownie/vim-relafile-django'
+" Plug 'mjbrownie/vim-relafile'
+" Plug 'mjbrownie/vim-relafile-django'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
@@ -103,8 +112,21 @@ Plug 'Xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle'  }
 Plug 'mgedmin/pythonhelper.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-unimpaired'
-Plug 'roxma/vim-paste-easy'
+"Plug 'roxma/vim-paste-easy'
 Plug 'bps/vim-textobj-python'
+Plug 'mattn/webapi-vim'
+Plug 'tyru/open-browser.vim'
+Plug 'Shougo/unite.vim'
+Plug 'rafi/vim-unite-issue'
+Plug 'machakann/vim-colorscheme-tatami'
+Plug 'majutsushi/tagbar'
+Plug 'vim-scripts/CmdlineComplete'
+Plug 'benmills/vimux'
+Plug 'tpope/vim-tbone'
+Plug 'w0rp/ale'
+Plug 'lifepillar/vim-solarized8'
+Plug 'python-rope/ropevim'
+Plug 'racer-rust/vim-racer'
 call plug#end()
 
 let g:NERDTreeUpdateOnCursorHold = 0
@@ -147,7 +169,7 @@ EOF
 endif
 
 map <F11> :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
-command Ctags :!ctags -R -f ./tags `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`<CR>
+command! -nargs=0 Ctags AsyncRun ~/bin/gen_tags.sh
 " Load up virtualenv's vimrc if it exists
 "
 "nnoremap \ap :%!autopep8 --aggressive --aggressive %<cr>
@@ -164,7 +186,7 @@ let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', '`':'`'}
 "
 let g:UltiSnipsExpandTrigger = "<nop>"
 let g:ulti_expand_or_jump_res = 0
-function ExpandSnippetOrCarriageReturn()
+function! ExpandSnippetOrCarriageReturn()
     let snippet = UltiSnips#ExpandSnippetOrJump()
     if g:ulti_expand_or_jump_res > 0
         return snippet
@@ -208,9 +230,9 @@ vnoremap <c-k> dkP'[V']
 " Run command-t file search
 map <leader>f :FZF<CR>
 " Ack searching
-nmap <leader>a <Esc>:Ag 
-nmap <leader>b <Esc>:Buffer 
-nmap <leader>s <Esc>:Snippets 
+nmap <leader>a <Esc>:Find   
+nmap <leader>b <Esc>:Buffer<cr>
+nmap <leader>s <Esc>:Snippets<cr>
 
 let g:syntastic_javascript_checkers = ['eslint']
 
@@ -231,7 +253,7 @@ fun! ToggleMouse ()
         echo "Mouse ON"
     endif
 endfun
-nnoremap \m :call ToggleMouse()<cr>
+nnoremap \mo :call ToggleMouse()<cr>
 
 function! StartUp()
     if 0 == argc()
@@ -258,9 +280,11 @@ nmap ga <Plug>(EasyAlign)
 inoremap jj <esc>A<cr>
 inoremap jk <esc>
 inoremap kj <esc>
-inoremap kk <esc><up>
-inoremap kl <esc>/["',)\]}=]<cr>a
+inoremap kk <esc>O
+" inoremap fj <esc>/["',)\]}=]<cr>a
+"inoremap jf <esc> ?["',)\]}=]<cr>i
 inoremap jl <esc>/[,)\]}=]<cr>a
+" inoremap lj <esc> ?[,)\]}=]<cr>i
 let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
 
 "Session manager
@@ -272,6 +296,7 @@ set sessionoptions+=tabpages,globals
 
 let g:syntastic_python_checkers=['python', 'flake8']
 let g:syntastic_python_flake8_post_args='--ignore=W391,E123,E128,E121 --max-line-length=100'
+let g:ale_python_flake8_args='--ignore=W391,E123,E128,E121 --max-line-length=100'
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0
@@ -283,9 +308,9 @@ let g:syntastic_loc_list_height=3
 
 let g:qb_hotkey = '\q'
 
-if filereadable('~/.vimrc.local.vim')
-    source ~/.vimrc.local.vim
-endif
+" if filereadable('~/.vimrc.local.vim')
+source ~/.vimrc.local.vim
+" endif
 
 inoremap {% {%  %}<left><left><left>
 inoremap {{ {{  }}<left><left><left>
@@ -322,6 +347,11 @@ let g:airline_section_x =''
 let g:airline_section_y ='%{TagInStatusLine()}'
 let g:airline_section_error = airline#section#create_right(['%{g:asyncrun_status}'])
 
+let g:airline#extensions#tabline#show_buffers = 1
+let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
+let g:airline#extensions#tabline#show_close_button = 0
+let g:airline#extensions#tabline#fnamemod = ':t'
+
 
 
 " if exists(':Make') == 2
@@ -332,21 +362,219 @@ let g:airline_section_error = airline#section#create_right(['%{g:asyncrun_status
 "     return 'call fugitive#cwindow()'
 " endif
 
-noremap \c :call asyncrun#quickfix_toggle(8)<cr>
+noremap \cc :call asyncrun#quickfix_toggle(8)<cr>
 
 if !filereadable(expand("%:p:h")."/Makefile")
     autocmd FileType c setlocal makeprg=gcc\ -Wall\ -Wextra\ -o\ %<\ %
 endif
 
 fun! RunAfter()
-    exe 'autocmd! BufWritePost *.py AsyncRun isort %'
+    exe 'autocmd! BufWritePost *.py AsyncRun ~/bin/buf_write_post_python %'
     exe 'autocmd User AsyncRunStop  edit'
     exe 'command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>'
+    nmap ]f ]pf
+    nmap [f [pf
+    nmap ]c ]pc
+    nmap [c [pc
     return
 endfun
-autocmd VimEnter * :call RunAfter()<cr>
+autocmd VimEnter * :call RunAfter()
 command! -bang -nargs=* WIP AsyncRun -program=~/bin/WIP ~/bin/WIP <args>
 
 autocmd FileType xml setlocal makeprg=xml\ val\ -e\ -s\ ~/src/tickets/IM-1/NIDSv8.xsd
 
-vnoremap \ap !autopep8 --aggressive --ignore=E123 --ignore=E128 --max-line-length=100 -<cr>
+vnoremap \ap !autopep8 --aggressive --ignore=E123 --ignore=E128 --max-line-length=100 -<cr>:w<cr>'.zt
+
+" gui colors if running iTerm
+if $TERM_PROGRAM =~ "iTerm"
+  set termguicolors
+endif
+let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
+let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+set termguicolors
+" set term=xterm-256color
+
+nmap \.= o<c-.>=<c-><esc>
+
+nnoremap \t :TagbarToggle<cr>
+
+autocmd FileType jinja setlocal commentstring={#\ %s\ #}
+
+nnoremap \bu <esc>:Buffer<cr>
+nnoremap \bg :let &background = ( &background == "dark"? "light" : "dark" )<CR>
+
+
+nnoremap <expr> \tm &ma?":set nomodifiable<cr>":":set modifiable<cr>"
+
+let g:ultisnips_python_style='google'
+let g:pythontagimportkey = "<c-x><c-i>"
+let g:pythontagimportcurrentword = "<leader>i"
+
+"inoremap <silent><expr> ( complete_parameter#pre_complete("()")
+" smap <c-j> <Plug>(complete_parameter#goto_next_parameter)
+" imap <c-j> <Plug>(complete_parameter#goto_next_parameter)
+" smap <c-k> <Plug>(complete_parameter#goto_previous_parameter)
+" imap <c-k> <Plug>(complete_parameter#goto_previous_parameter))
+"let g:complete_parameter_use_ultisnips_mapping = 1
+
+"let g:AutoPairs = {'[':']', '{':'}',"'":"'",'"':'"', '`':'`'}
+"inoremap <buffer><silent> ) <C-R>=AutoPairsInsert(')')<CR>
+"
+"
+function! s:tags_sink(line)
+  let parts = split(a:line, '\t\zs')
+  let excmd = matchstr(parts[2:], '^.*\ze;"\t')
+  execute 'silent e' parts[1][:-2]
+  let [magic, &magic] = [&magic, 0]
+  execute excmd
+  let &magic = magic
+endfunction
+
+function! s:tags()
+  if empty(tagfiles())
+    echohl WarningMsg
+    echom 'Preparing tags'
+    echohl None
+    call system('ctags -R')
+  endif
+
+  " \ 'source':  'cat '.join(map(tagfiles(), 'fnamemodify(v:val, ":S")')).
+  call fzf#run({
+  \ 'source':  'cat '.join(map(tagfiles(), 'fnamemodify(v:val, ":r")')).
+  \            '| grep -v -a ^!',
+  \ 'options': '+m -d "\t" --with-nth 1,4.. -n 1 --tiebreak=index',
+  \ 'down':    '40%',
+  \ 'sink':    function('s:tags_sink')})
+endfunction
+
+command! Tags call s:tags()
+nnoremap \z :Tags<cr> 
+
+function! UpdateModifiable()
+  if !exists("b:setmodifiable")
+    let b:setmodifiable = 0
+  endif
+  if &readonly
+    if &modifiable
+      setlocal nomodifiable
+      let b:setmodifiable = 1
+    endif
+  else
+    if b:setmodifiable
+      setlocal modifiable
+    endif
+  endif
+endfunction
+autocmd BufReadPost * call UpdateModifiable()
+
+" set ttymouse=sgr
+set mouse=a
+
+" Long line
+nnoremap ,ll 100\|F,a<cr><esc>
+
+
+
+function! s:agmulti(args)
+  call fzf#vim#ag(a:args, {'options': '--bind ctrl-a:select-all,ctrl-d:deselect-all'})
+endfun
+command! -nargs=1 Mag call s:agmulti('<args>')
+nnoremap \x :Mag 
+
+nnoremap \w :Mag <c-r><c-w><cr>
+
+
+function! GetBufferList()
+  redir =>buflist
+  silent! ls!
+  redir END
+  return buflist
+endfunction
+
+function! ToggleList(bufname, pfx)
+  let buflist = GetBufferList()
+  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+    if bufwinnr(bufnum) != -1
+      exec(a:pfx.'close')
+      return
+    endif
+  endfor
+  if a:pfx == 'l' && len(getloclist(0)) == 0
+      echohl ErrorMsg
+      echo "Location List is Empty."
+      return
+  endif
+  let winnr = winnr()
+  exec(a:pfx.'open')
+  if winnr() != winnr
+    wincmd p
+  endif
+endfunction
+
+nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
+nmap <silent> <leader>e :call ToggleList("Quickfix List", 'c')<CR>
+
+let g:easy_align_delimiters = {
+    \ '>': { 'pattern': '>>\|=>\|>' },
+    \ 'a': {
+    \     'pattern':         ' as ',
+    \     'delimiter_align': 'l',
+    \     'ignore_groups':   ['!Comment'] },
+    \ '/': {
+    \     'pattern':         '\/\*',
+    \     'delimiter_align': 'l',
+    \     'ignore_groups':   ['!Comment'] },
+    \ '.': {
+    \     'pattern':         '\*\/',
+    \     'delimiter_align': 'l',
+    \     'ignore_groups':   ['!Comment'] },
+    \ ']': {
+    \     'pattern':       '[[\]]',
+    \     'left_margin':   0,
+    \     'right_margin':  0,
+    \     'stick_to_left': 0
+    \   },
+    \ ')': {
+    \     'pattern':       '[()]',
+    \     'left_margin':   0,
+    \     'right_margin':  0,
+    \     'stick_to_left': 0
+    \   },
+    \ 'd': {
+    \     'pattern':      ' \(\S\+\s*[;=]\)\@=',
+    \     'left_margin':  0,
+    \     'right_margin': 0
+    \   }
+    \ }
+
+au BufReadCmd *.prpt call zip#Browse(expand("<amatch>"))
+
+set nohlsearch
+
+" --column: Show column number
+" --line-number: Show line number
+" --no-heading: Do not show file headings in results
+" --fixed-strings: Search term as a literal string
+" --ignore-case: Case insensitive search
+" --no-ignore: Do not respect .gitignore, etc...
+" --hidden: Search hidden files and folders
+" --follow: Follow symlinks
+" --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+" --color: Search color options
+command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
+
+"let g:AutoPairsShortcutToggle = '<leader>\tap'
+"
+"
+let g:tmux_view_session = 't im_a'
+let g:tmux_view_window = 'TMUX_VIM_VIEW'
+function! s:tmux_view()
+    let line = getline('.')
+    let filename = getcwd() . split(line, "|")[0]
+    let lineno = split(split(line, "|")[1],' ')[0]
+    echo filename
+    echo lineno
+endfunction
+autocmd WinEnter * if &buftype == 'quickfix' | nnoremap <buffer> <c-t> call s:tmux_view() | endif
+
+nnoremap \hh :History:<cr>
