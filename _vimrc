@@ -60,8 +60,23 @@ Plug 'rust-lang/rust.vim'
 Plug 'will133/vim-dirdiff'
 Plug 'vim-scripts/dbext.vim'
 Plug 'mjbrownie/swapit'
-Plug 'mjbrownie/YouCompleteMe', { 'do': function('BuildYCM') }
+if filereadable('Cargo.toml')
+Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/denite.nvim'
+
+" (Optional) Completion integration with deoplete.
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+" (Optional) Completion integration with nvim-completion-manager.
+Plug 'roxma/nvim-completion-manager'
+
+" (Optional) Showing function signature and inline doc.
+Plug 'Shougo/echodoc.vim'
+else
+Plug 'valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'tenfyzhong/CompleteParameter.vim'
+endif
+"Plug 'mjbrownie/YouCompleteMe', { 'do': function('BuildYCM') }
+"Plug 'roxma/nvim-completion-manager'
 Plug 'mattn/emmet-vim'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -578,3 +593,22 @@ endfunction
 autocmd WinEnter * if &buftype == 'quickfix' | nnoremap <buffer> <c-t> call s:tmux_view() | endif
 
 nnoremap \hh :History:<cr>
+
+nnoremap \nt :NERDTreeToggle<cr>
+
+"RLS Stuff
+" Required for operations modifying multiple buffers like rename.
+set hidden
+
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
+    \ }
+
+" Automatically start language servers.
+let g:LanguageClient_autoStart = 1
+
+nnoremap <silent> K :call LanguageClient_textDocument_hover()<CR>
+nnoremap <silent> gd :call LanguageClient_textDocument_definition()<CR>
+nnoremap <silent> <F2> :call LanguageClient_textDocument_rename()<CR>
+
+au FileType rust set completefunc=LanguageClient#complete
