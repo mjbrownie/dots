@@ -56,6 +56,7 @@ function! BuildYCM(info)
 endfunction
 
 call plug#begin()
+Plug 'mjbrownie/Python-Tag-Import'
 Plug 'rust-lang/rust.vim'
 Plug 'will133/vim-dirdiff'
 Plug 'vim-scripts/dbext.vim'
@@ -131,6 +132,7 @@ call plug#end()
 
 let g:NERDTreeUpdateOnCursorHold = 0
 let g:airline#extensions#tabline#enabled = 1
+let g:pythontagimportkey = "<c-x><c-i>"
 
 " Add the virtualenv's site-packages to vim path
 if has("python")
@@ -261,7 +263,7 @@ function! StartUp()
     end
 endfunction
 
-"autocmd VimEnter * call StartUp()
+autocmd VimEnter * call StartUp()
 "set backup
 "set backupdir=./.backupset directory=./.backup
 "
@@ -578,3 +580,6 @@ endfunction
 autocmd WinEnter * if &buftype == 'quickfix' | nnoremap <buffer> <c-t> call s:tmux_view() | endif
 
 nnoremap \hh :History:<cr>
+nnoremap \nt :NERDTreeToggle<cr>
+
+nnoremap \vf :FZF ~/.config/nvim/<cr>
