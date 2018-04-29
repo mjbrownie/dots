@@ -56,13 +56,14 @@ function! BuildYCM(info)
 endfunction
 
 call plug#begin()
-Plug 'mjbrownie/Python-Tag-Import'
-Plug 'rust-lang/rust.vim'
+"Plug 'klen/python-mode', { 'for': ['python'] }
+Plug 'mjbrownie/Python-Tag-Import', {'for': ['python']}
+Plug 'rust-lang/rust.vim', {'for': ['rust']}
 Plug 'will133/vim-dirdiff'
-Plug 'vim-scripts/dbext.vim'
+Plug 'vim-scripts/dbext.vim', {'for': ['sql']}
 Plug 'mjbrownie/swapit'
-if filereadable('Cargo.toml')
 Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
+if filereadable('Cargo.toml.not.here')
 Plug 'Shougo/denite.nvim'
 
 " (Optional) Completion integration with deoplete.
@@ -73,8 +74,8 @@ Plug 'roxma/nvim-completion-manager'
 " (Optional) Showing function signature and inline doc.
 Plug 'Shougo/echodoc.vim'
 else
-Plug 'valloric/YouCompleteMe', { 'do': function('BuildYCM') }
-Plug 'tenfyzhong/CompleteParameter.vim'
+Plug 'valloric/YouCompleteMe', { 'for': ['python', 'c', 'cpp'], 'do': function('BuildYCM') }
+Plug 'tenfyzhong/CompleteParameter.vim', { 'for': ['python', 'c', 'cpp'] }
 endif
 "Plug 'mjbrownie/YouCompleteMe', { 'do': function('BuildYCM') }
 "Plug 'roxma/nvim-completion-manager'
@@ -82,15 +83,15 @@ Plug 'mattn/emmet-vim'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'tpope/vim-surround'
-Plug 'mjbrownie/vim-surround_django'
-Plug 'mjbrownie/snipmate_for_django'
+Plug 'mjbrownie/vim-surround_django', {'for': ['python']}
+Plug 'mjbrownie/snipmate_for_django', {'for': ['python']}
 Plug 'mjbrownie/browser.vim'
 Plug 'mjbrownie/vim-relativize'
 Plug 'mjbrownie/swapit'
 Plug 'mjbrownie/delete-surround-html'
-Plug 'mjbrownie/django-template-textobjects'
+Plug 'mjbrownie/django-template-textobjects', {'for': ['python']}
 Plug 'mjbrownie/html-textobjects'
-Plug 'mjbrownie/snipmate_for_django'
+Plug 'mjbrownie/snipmate_for_django', {'for': ['python']}
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 " Plug 'vim-syntastic/syntastic'
@@ -106,7 +107,7 @@ Plug 'tpope/tpope-vim-abolish'
 Plug 'jiangmiao/auto-pairs'
 Plug 'narfdotpl/selfdot.vim'
 Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
+Plug 'mxw/vim-jsx', {'for': ['javascript', 'jsx']}
 Plug 'wlemuel/vim-ultisnips-redux'
 Plug 'scrooloose/NerdTree'
 Plug 'mjbrownie/GetFilePlus'
@@ -116,7 +117,7 @@ Plug 'adelarsq/vim-matchit'
 Plug 'gcmt/taboo.vim'
 Plug 'xolox/vim-misc'
 Plug 'xolox/vim-session'
-Plug 'Glench/Vim-Jinja2-Syntax'
+"Plug 'Glench/Vim-Jinja2-Syntax'
 Plug 'airblade/vim-gitgutter'
 Plug 'vim-scripts/QuickBuf'
 "Plug 'powerline/powerline'
@@ -129,7 +130,7 @@ Plug 'mgedmin/pythonhelper.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-unimpaired'
 "Plug 'roxma/vim-paste-easy'
-Plug 'bps/vim-textobj-python'
+Plug 'bps/vim-textobj-python', {'for': ['python']}
 Plug 'mattn/webapi-vim'
 Plug 'tyru/open-browser.vim'
 Plug 'Shougo/unite.vim'
@@ -141,13 +142,27 @@ Plug 'benmills/vimux'
 Plug 'tpope/vim-tbone'
 Plug 'w0rp/ale'
 Plug 'lifepillar/vim-solarized8'
-Plug 'python-rope/ropevim'
-Plug 'racer-rust/vim-racer'
+" Plug 'python-rope/ropevim'
+Plug 'racer-rust/vim-racer', {'for': ['rust']}
+Plug 'fatih/vim-go', { 'for': ['go'], 'do': ':GoInstallBinaries' }
+" Plug 'baverman/vial'
+" Plug 'baverman/vial-http'
+Plug 'diepm/vim-rest-console'
+
+Plug 'rhysd/vim-grammarous'
 call plug#end()
 
 let g:NERDTreeUpdateOnCursorHold = 0
 let g:airline#extensions#tabline#enabled = 1
 let g:pythontagimportkey = "<c-x><c-i>"
+
+if filereadable('env/bin/python3')
+    let g:python3_host_prog  = getcwd(). '/env/bin/python3'
+endif
+
+if filereadable('env/bin/python2')
+    let g:python2_host_prog  = getcwd() . 'env/bin/python2'
+endif
 
 " Add the virtualenv's site-packages to vim path
 if has("python")
@@ -156,11 +171,11 @@ import os.path
 import sys
 import vim
 
-if 'VIRTUAL_ENV' in os.environ:
-    project_base_dir = os.environ['VIRTUAL_ENV']
-    sys.path.insert(0, project_base_dir)
-    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-    execfile(activate_this, dict(__file__=activate_this))
+# if 'VIRTUAL_ENV' in os.environ:
+#     project_base_dir = os.environ['VIRTUAL_ENV']
+#     sys.path.insert(0, project_base_dir)
+#     activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+#     execfile(activate_this, dict(__file__=activate_this))
 
 #Old school project assumptions. Note This assumes pwd is project dir
 if os.path.exists('settings.py'):
@@ -247,7 +262,7 @@ vnoremap <c-k> dkP'[V']
 " Run command-t file search
 map <leader>f :FZF<CR>
 " Ack searching
-nmap <leader>a <Esc>:Find   
+nmap <leader>a <Esc>:Mag   
 nmap <leader>b <Esc>:Buffer<cr>
 nmap <leader>s <Esc>:Snippets<cr>
 
@@ -278,7 +293,7 @@ function! StartUp()
     end
 endfunction
 
-autocmd VimEnter * call StartUp()
+" autocmd VimEnter * call StartUp()
 "set backup
 "set backupdir=./.backupset directory=./.backup
 "
@@ -314,6 +329,7 @@ set sessionoptions+=tabpages,globals
 let g:syntastic_python_checkers=['python', 'flake8']
 let g:syntastic_python_flake8_post_args='--ignore=W391,E123,E128,E121 --max-line-length=100'
 let g:ale_python_flake8_args='--ignore=W391,E123,E128,E121 --max-line-length=100'
+let g:ale_python_pylint_options='--rcfile ~/.config/pylint.rc'
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0
@@ -379,7 +395,7 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 "     return 'call fugitive#cwindow()'
 " endif
 
-noremap \cc :call asyncrun#quickfix_toggle(8)<cr>
+" noremap \cc :call asyncrun#quickfix_toggle(8)<cr>
 
 if !filereadable(expand("%:p:h")."/Makefile")
     autocmd FileType c setlocal makeprg=gcc\ -Wall\ -Wextra\ -o\ %<\ %
@@ -401,6 +417,7 @@ command! -bang -nargs=* WIP AsyncRun -program=~/bin/WIP ~/bin/WIP <args>
 autocmd FileType xml setlocal makeprg=xml\ val\ -e\ -s\ ~/src/tickets/IM-1/NIDSv8.xsd
 
 vnoremap \ap !autopep8 --aggressive --ignore=E123 --ignore=E128 --max-line-length=100 -<cr>:w<cr>'.zt
+vnoremap \jp :!python -m json.tool<cr>
 
 " gui colors if running iTerm
 if $TERM_PROGRAM =~ "iTerm"
@@ -417,7 +434,7 @@ nnoremap \t :TagbarToggle<cr>
 
 autocmd FileType jinja setlocal commentstring={#\ %s\ #}
 
-nnoremap \bu <esc>:Buffer<cr>
+nnoremap \b <esc>:Buffers <cr>
 nnoremap \bg :let &background = ( &background == "dark"? "light" : "dark" )<CR>
 
 
@@ -497,6 +514,9 @@ function! s:agmulti(args)
 endfun
 command! -nargs=1 Mag call s:agmulti('<args>')
 nnoremap \x :Mag 
+
+nnoremap \h :History:<cr>
+nnoremap \/ :History/<cr>
 
 nnoremap \w :Mag <c-r><c-w><cr>
 
@@ -615,3 +635,24 @@ nnoremap <silent> gd :call LanguageClient_textDocument_definition()<CR>
 nnoremap <silent> <F2> :call LanguageClient_textDocument_rename()<CR>
 
 au FileType rust set completefunc=LanguageClient#complete
+
+"call deoplete#custom#set('_', 'matchers', ['matcher_full_fuzzy'])
+"
+" au FileType rust set tags=./rusty-tags.vi;
+
+command Rtags AsyncRun rusty-tags vi
+
+nnoremap \i :Lines<cr>
+
+inoremap <c-l> <esc>/["')<>(}{\]]<cr>a
+
+nnoremap \cf :FZF ~/.cargo/registry<cr>
+
+vnoremap \ap !autopep8 --max-line-length 100 -<cr>
+
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
+
+
+nnoremap <C-n> :cnext<CR>
+nnoremap <C-m> :cprevious<CR>
+nnoremap \r :Lines<cr>
